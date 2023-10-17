@@ -57,6 +57,8 @@ TYPE_ROW = 0
 CLASS_LABEL_MAP = {} # Mapping of class name to integer label
 TASK_TYPE = 0
 CUTOFF_FOR_LABEL_ENCODING = 5
+M = 0
+N = 0
 
 # Function Definitions
 
@@ -283,6 +285,7 @@ def layer_block(in_features, out_features):
     )
 
 class NeuralNetwork(nn.Module):
+    global M, N
     def __init__(self):
         super(NeuralNetwork, self).__init__()
         self.block1 = layer_block(M, (2*M+N)//3)
@@ -328,7 +331,7 @@ def ModelTraining():
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
-    global FILE_NAME, SCALER, SCALER_Y
+    global FILE_NAME, SCALER, SCALER_Y, M, N
     FILE_NAME = 'training_data.csv'
 
     # Load the data
