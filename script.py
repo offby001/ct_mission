@@ -363,7 +363,7 @@ def ModelTraining():
     recording_interval = num_epochs // 20
     losses = []
     for epoch in tqdm(range(num_epochs), desc="Training"):
-        train_loss = train_one_epoch(model, train_loader, criterion, optimizer)
+        train_loss = train_one_epoch(MODEL, train_loader, criterion, optimizer)
         if epoch % recording_interval == 0 or epoch == num_epochs - 1:
             losses.append(train_loss)
             print(f'Epoch {epoch+1:>5}/{num_epochs:>5}, Loss: {train_loss:>.4f}')
@@ -406,7 +406,7 @@ def ModelEvaluation():
 
     for inputs, _ in test_loader:
         with torch.no_grad():
-            outputs = model(inputs)
+            outputs = MODEL(inputs)
             if TASK_TYPE == 'classification':
                 _, preds = torch.max(outputs, 1)
                 predictions.extend(preds.cpu().numpy())
