@@ -279,21 +279,25 @@ def DataPreProcessing(file_name):
 #DataPreProcessing(file_name)
 
 # Step 2: Build the neural network
-def layer_block(in_features, out_features):
-    return nn.Sequential(
+def layer_block(in_features, out_features, use_batchnorm=True):
+    layers = [
         nn.Linear(in_features, out_features),
-        nn.BatchNorm1d(out_features),
         nn.ReLU(),
         nn.Dropout(0.3)
-    )
+    ]
+    
+    if use_batchnorm:
+        layers.insert(1, nn.BatchNorm1d(out_features))
+        
+    return nn.Sequential(*layers)
 
 class NeuralNetwork(nn.Module):
 
     def __init__(self):
         global M, N
         super(NeuralNetwork, self).__init__()
-        self.block1 = layer_block(M, (2*M+N)//3)
-        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
+        self.block1 = layer_block(M, (2*M+N)//3, N!= 1)
+        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3,, N!= 1)
         self.fc_out = nn.Linear((M+2*N)//3, N)
         self.init_weights()
 
