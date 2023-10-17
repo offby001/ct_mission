@@ -57,8 +57,8 @@ TYPE_ROW = 0
 CLASS_LABEL_MAP = {} # Mapping of class name to integer label
 TASK_TYPE = 0
 CUTOFF_FOR_LABEL_ENCODING = 5
-M = 0
-N = 0
+M = 1
+N = 1
 
 # Function Definitions
 
@@ -310,8 +310,7 @@ model = NeuralNetwork()
 criterion = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
 
-# Step 3: Training
-num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
+
 
 # Define the training function
 def train_one_epoch(model, loader, criterion, optimizer):
@@ -355,7 +354,9 @@ def ModelTraining():
     X_train = SCALER.fit_transform(X)
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-  
+    
+    # Step 3: Training
+    num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
     recording_interval = num_epochs // 20
     losses = []
     for epoch in tqdm(range(num_epochs), desc="Training"):
