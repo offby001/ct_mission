@@ -41,6 +41,9 @@ import seaborn as sns
 # Placeholder for the dataset. Will be assigned when the dataset is uploaded.
 FULL_DATASET = None
 PROCESSED_FULL_DATASET = None
+FILE_NAME = None
+SCALER = None
+SCALER_Y = None
 
 # Constants for dataset format
 ACTUAL_VALUE_COL = 0
