@@ -242,7 +242,7 @@ def DataPreProcessing(file_name):
     # Step 3: ProcessFeatures
     try:
         print(ProcessFeatures())
-        print("A preview of the DataSet as show below...")
+        print("A preview of the processed dataset as show below...")
         print(PROCESSED_FULL_DATASET)
     except Exception as e:
         print("Error appeared at the ProcessFeatures step. Please check your input CSV file or seek help from teachers.")
