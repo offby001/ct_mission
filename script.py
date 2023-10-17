@@ -356,7 +356,7 @@ def ModelTraining():
 
     MODEL = NeuralNetwork()
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
-    OPTIMIZER = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+    OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
     
     # Step 3: Training
     num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
