@@ -53,6 +53,7 @@ SCALER_Y = None
 MODEL = None 
 CRITERION =  None
 OPTIMIZER = None
+WAIT_TIME = 0
 
 # Constants for dataset format
 ACTUAL_VALUE_COL = 0
@@ -227,7 +228,7 @@ def DataPreProcessing(file_name):
     pd.set_option('display.max_columns', 5)
     print(FULL_DATASET)
     print("Now let's validate the dataset...")
-    time.sleep(2)
+    time.sleep(WAIT_TIME)
     # Step 2: FullDataSetValidation
     try:
         print(FullDataSetValidation())
@@ -238,7 +239,7 @@ def DataPreProcessing(file_name):
 
 
     print("Now let's process the features ...")
-    time.sleep(2)
+    time.sleep(WAIT_TIME)
     # Step 3: ProcessFeatures
     try:
         print(ProcessFeatures())
@@ -250,7 +251,7 @@ def DataPreProcessing(file_name):
         return
     if TASK_TYPE == "classification":
         print("Now let's us map the class names to class labels...")
-        time.sleep(2)
+        time.sleep(WAIT_TIME)
 
     # Step 4: MakeClassLabels
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
@@ -263,7 +264,7 @@ def DataPreProcessing(file_name):
             return
 
     print("Now let's generate files for trainign and testing...")
-    time.sleep(2)
+    time.sleep(WAIT_TIME)
     # Step 5: GenereatingNewfiles
     try:
         print(GenereatingNewfiles())
@@ -279,25 +280,22 @@ def DataPreProcessing(file_name):
 #DataPreProcessing(file_name)
 
 # Step 2: Build the neural network
-def layer_block(in_features, out_features, use_batchnorm=True):
-    layers = [
+def layer_block(in_features, out_features):
+    return nn.Sequential(
         nn.Linear(in_features, out_features),
+        nn.BatchNorm1d(out_features),
         nn.ReLU(),
         nn.Dropout(0.3)
-    ]
-    
-    if use_batchnorm:
-        layers.insert(1, nn.BatchNorm1d(out_features))
-        
-    return nn.Sequential(*layers)
+    )
+
 
 class NeuralNetwork(nn.Module):
 
     def __init__(self):
         global M, N
         super(NeuralNetwork, self).__init__()
-        self.block1 = layer_block(M, (2*M+N)//3, 1)
-        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3, 1)
+        self.block1 = layer_block(M, (2*M+N)//3)
+        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
         self.fc_out = nn.Linear((M+2*N)//3, N)
         self.init_weights()
 
@@ -359,7 +357,8 @@ def ModelTraining():
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     MODEL = NeuralNetwork()
-    CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
+    # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
+    CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.SmoothL1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
     
     # Step 3: Training
@@ -459,7 +458,7 @@ def ModelEvaluation():
         for idx in sorted_indices[-5:]:
             print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
     # 4. Visualization:
-    time.sleep(3)
+    time.sleep(WAIT_TIME)
     if TASK_TYPE == 'classification' and len(CLASS_LABEL_MAP) == 2:
       # Convert y_test and predictions to string
         y_test = y_test.astype(str) #string
