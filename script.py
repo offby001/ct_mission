@@ -163,7 +163,7 @@ def FilesDownloading():
     
     try:
         # Trigger automatic download
-        files.download('training_data.csv'h)
+        files.download('training_data.csv')
         files.download('testing_data.csv')
     except Exception as e:
         print("Error appeared at the FilesDownloading step. Please check your input or seek help from teachers.")
