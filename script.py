@@ -156,12 +156,20 @@ def GenereatingNewfiles():
 
     train_data.to_csv(train_file_path, index=False)
     test_data.to_csv(test_file_path, index=False)
-
-
-    # Trigger automatic download
-    files.download(train_file_path)
-    files.download(test_file_path)
     return "Files Generated Successfully!\n\n"
+
+def FilesDownloading()
+
+    
+    try:
+        # Trigger automatic download
+        files.download('training_data.csv'h)
+        files.download('testing_data.csv')
+    except Exception as e:
+        print("Error appeared at the FilesDownloading step. Please check your input or seek help from teachers.")
+        print(f"Technical details: {e}")
+        return
+    
 
 def DataPreProcessing(file_name):
         # Step 1: FullDataSetUpload
