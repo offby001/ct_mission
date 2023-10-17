@@ -1,7 +1,18 @@
-# @title Data Pre-Processing check the buttom on the left of the next row(?) earlier version
-# %%writefile myscript.py
+"""
+Module Name: script.py
+Description: This module is to facilitate the mission in the Course CT. 
+
+@author: offby001
+@email: offby001@gmail.com
+@date: October 18, 2023
+@version: 1.0.0
+
+"""
 # Importing Necessary Libraries
+
+# For time tracking
 import time
+
 # For data manipulation
 import pandas as pd
 import numpy as np
@@ -14,26 +25,21 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 from sklearn.model_selection import train_test_split
 
-import numpy as np
+# For deep learning with PyTorch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-import pandas as pd
-import matplotlib.pyplot as plt
-from google.colab import files
-from tqdm.notebook import tqdm  # For progress monitoring
 
-import pandas as pd
-import torch
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.metrics import accuracy_score, mean_absolute_error, confusion_matrix
-import numpy as np
-from google.colab import files
+# For progress monitoring
+from tqdm.notebook import tqdm
+
+# For visualization
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+# For evaluation metrics
+from sklearn.metrics import accuracy_score, mean_absolute_error, confusion_matrix
 
 
 # Global Variables
@@ -267,33 +273,6 @@ def DataPreProcessing(file_name):
 #print("testing", filename)
 #DataPreProcessing(file_name)
 
-# Step 1: File uploading
-#uploaded = files.upload()
-#file_name = list(uploaded.keys())[0]
-file_name = 'training_data.csv'
-
-# Load the data
-data = pd.read_csv(file_name)
-X = data.iloc[:, 1:].values
-y = data.iloc[:, 0].values
-M = X.shape[1]  # Number of features
-
-# Handle class labels if it's a classification task
-if TASK_TYPE == 'classification':
-    N = len(set(y))  # Number of classes
-    y = np.vectorize(CLASS_LABEL_MAP.get)(y)
-    y_tensor = torch.tensor(y, dtype=torch.long)
-else:
-    N = 1
-    scaler_y = StandardScaler()
-    y = scaler_y.fit_transform(y.reshape(-1, 1)).flatten()
-    y_tensor = torch.tensor(y, dtype=torch.float32)
-
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X)
-train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-
 # Step 2: Build the neural network
 def layer_block(in_features, out_features):
     return nn.Sequential(
@@ -346,6 +325,33 @@ def train_one_epoch(model, loader, criterion, optimizer):
 
 
 def ModelTraining():
+    # Step 1: File uploading
+    #uploaded = files.upload()
+    #file_name = list(uploaded.keys())[0]
+    global FILE_NAME, SCALER, SCALER_Y
+    FILE_NAME = 'training_data.csv'
+
+    # Load the data
+    data = pd.read_csv(FILE_NAME)
+    X = data.iloc[:, 1:].values
+    y = data.iloc[:, 0].values
+    M = X.shape[1]  # Number of features
+
+    # Handle class labels if it's a classification task
+    if TASK_TYPE == 'classification':
+        N = len(set(y))  # Number of classes
+        y = np.vectorize(CLASS_LABEL_MAP.get)(y)
+        y_tensor = torch.tensor(y, dtype=torch.long)
+    else:
+        N = 1
+        SCALER_Y = StandardScaler()
+        y = SCALER_Y.fit_transform(y.reshape(-1, 1)).flatten()
+        y_tensor = torch.tensor(y, dtype=torch.float32)
+
+    SCALER = StandardScaler()
+    X_train = SCALER.fit_transform(X)
+    train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
   
     recording_interval = num_epochs // 20
     losses = []
@@ -360,17 +366,18 @@ def ModelTraining():
     plt.xlabel('Epochs (every 5% of num_epochs)')
     plt.ylabel('Loss')
     plt.show()
-
+    
 def ModelEvaluation():
     # 1. Setup and Information from the Early Step:
-
+    global FILE_NAME, SCALER, SCALER_Y
     # Reading Data
-    df = pd.read_csv('testing_data.csv')
+    FILE_NAME = 'testing_data.csv'
+    df = pd.read_csv(FILE_NAME)
     y_test = df.iloc[:, 0].values
     X_test = df.iloc[:, 1:].values
 
     # Preprocessing
-    X_test = scaler.transform(X_test)
+    X_test = SCALER.transform(X_test)
 
     # Tensor Conversion
     test_tensor_x = torch.Tensor(X_test)
@@ -402,7 +409,7 @@ def ModelEvaluation():
     # If regression, inverse scale the predictions
     if TASK_TYPE == 'regression':
         predictions = np.array(predictions).reshape(-1, 1)  # Convert to 2D
-        predictions = scaler_y.inverse_transform(predictions)  # inverse transform
+        predictions = SCALER_Y.inverse_transform(predictions)  # inverse transform
         predictions = predictions.flatten()  # Convert back to 1D
     # 3. Accuracy Calculation:
 
