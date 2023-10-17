@@ -297,7 +297,7 @@ class NeuralNetwork(nn.Module):
         global M, N
         super(NeuralNetwork, self).__init__()
         self.block1 = layer_block(M, (2*M+N)//3, N!= 1)
-        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3,, N!= 1)
+        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3, N!= 1)
         self.fc_out = nn.Linear((M+2*N)//3, N)
         self.init_weights()
 
