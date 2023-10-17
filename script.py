@@ -285,8 +285,9 @@ def layer_block(in_features, out_features):
     )
 
 class NeuralNetwork(nn.Module):
-    global M, N
+
     def __init__(self):
+        global M, N
         super(NeuralNetwork, self).__init__()
         self.block1 = layer_block(M, (2*M+N)//3)
         self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
@@ -299,6 +300,7 @@ class NeuralNetwork(nn.Module):
             nn.init.zeros_(layer.bias)
 
     def forward(self, x):
+        global M, N
         x = self.block1(x)
         x = self.block2(x)
         x = self.fc_out(x)
