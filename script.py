@@ -14,6 +14,27 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 from sklearn.model_selection import train_test_split
 
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+import matplotlib.pyplot as plt
+from google.colab import files
+from tqdm.notebook import tqdm  # For progress monitoring
+
+import pandas as pd
+import torch
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.metrics import accuracy_score, mean_absolute_error, confusion_matrix
+import numpy as np
+from google.colab import files
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 # Global Variables
 
@@ -243,3 +264,224 @@ def DataPreProcessing(file_name):
 #print("testing", filename)
 #DataPreProcessing(file_name)
 
+# Step 1: File uploading
+#uploaded = files.upload()
+#file_name = list(uploaded.keys())[0]
+file_name = 'training_data.csv'
+
+# Load the data
+data = pd.read_csv(file_name)
+X = data.iloc[:, 1:].values
+y = data.iloc[:, 0].values
+M = X.shape[1]  # Number of features
+
+# Handle class labels if it's a classification task
+if TASK_TYPE == 'classification':
+    N = len(set(y))  # Number of classes
+    y = np.vectorize(CLASS_LABEL_MAP.get)(y)
+    y_tensor = torch.tensor(y, dtype=torch.long)
+else:
+    N = 1
+    scaler_y = StandardScaler()
+    y = scaler_y.fit_transform(y.reshape(-1, 1)).flatten()
+    y_tensor = torch.tensor(y, dtype=torch.float32)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X)
+train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+
+# Step 2: Build the neural network
+def layer_block(in_features, out_features):
+    return nn.Sequential(
+        nn.Linear(in_features, out_features),
+        nn.BatchNorm1d(out_features),
+        nn.ReLU(),
+        nn.Dropout(0.3)
+    )
+
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super(NeuralNetwork, self).__init__()
+        self.block1 = layer_block(M, (2*M+N)//3)
+        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
+        self.fc_out = nn.Linear((M+2*N)//3, N)
+        self.init_weights()
+
+    def init_weights(self):
+        for layer in [self.block1[0], self.block2[0], self.fc_out]:
+            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
+            nn.init.zeros_(layer.bias)
+
+    def forward(self, x):
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.fc_out(x)
+        if N == 1:  # Regression
+            x = x.squeeze(-1)
+        return x
+
+model = NeuralNetwork()
+criterion = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+
+# Step 3: Training
+num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
+
+# Define the training function
+def train_one_epoch(model, loader, criterion, optimizer):
+    model.train()
+    running_loss = 0.0
+    for inputs, labels in loader:
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item() * inputs.size(0)
+    return running_loss / len(loader.dataset)
+
+
+def ModelTraining():
+  
+    recording_interval = num_epochs // 20
+    losses = []
+    for epoch in tqdm(range(num_epochs), desc="Training"):
+        train_loss = train_one_epoch(model, train_loader, criterion, optimizer)
+        if epoch % recording_interval == 0 or epoch == num_epochs - 1:
+            losses.append(train_loss)
+            print(f'Epoch {epoch+1:>5}/{num_epochs:>5}, Loss: {train_loss:>.4f}')
+
+    # Step 4: Visualization
+    plt.plot([i*recording_interval for i in range(len(losses))], losses)
+    plt.xlabel('Epochs (every 5% of num_epochs)')
+    plt.ylabel('Loss')
+    plt.show()
+
+def ModelEvaluation():
+    # 1. Setup and Information from the Early Step:
+
+    # Reading Data
+    df = pd.read_csv('testing_data.csv')
+    y_test = df.iloc[:, 0].values
+    X_test = df.iloc[:, 1:].values
+
+    # Preprocessing
+    X_test = scaler.transform(X_test)
+
+    # Tensor Conversion
+    test_tensor_x = torch.Tensor(X_test)
+    if TASK_TYPE == 'classification':
+        y_test = np.array([CLASS_LABEL_MAP[label] for label in y_test])
+        test_tensor_y = torch.LongTensor(y_test)
+    else:
+        test_tensor_y = torch.Tensor(y_test)
+
+    test_dataset = TensorDataset(test_tensor_x, test_tensor_y)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
+
+    # Set the model to evaluation mode
+    model.eval()
+
+    # 2. Evaluate the Test Dataset:
+
+    predictions = []
+
+    for inputs, _ in test_loader:
+        with torch.no_grad():
+            outputs = model(inputs)
+            if TASK_TYPE == 'classification':
+                _, preds = torch.max(outputs, 1)
+                predictions.extend(preds.cpu().numpy())
+            else:
+                predictions.extend(outputs.cpu().squeeze().numpy()) #0, 1, 2, class label
+
+    # If regression, inverse scale the predictions
+    if TASK_TYPE == 'regression':
+        predictions = np.array(predictions).reshape(-1, 1)  # Convert to 2D
+        predictions = scaler_y.inverse_transform(predictions)  # inverse transform
+        predictions = predictions.flatten()  # Convert back to 1D
+    # 3. Accuracy Calculation:
+
+    if TASK_TYPE == 'classification':
+        accuracy = accuracy_score(y_test, predictions)
+        y_test = np.array(y_test)
+        predictions = np.array(predictions) #0, 1, 2, class label
+        correct_predictions = np.sum(y_test == predictions)
+        print(f"Correct Predictions: {correct_predictions}")
+        print(f"Total Predictions: {len(predictions)}")
+        print(f"Accuracy: {accuracy:.4f}")
+        print("The accuracy tells us how many times our model correctly predicted")
+        print("the class label out of all the predictions it made")
+        print("It is the value when dividing the correct predictions by the total predictions.")
+        print(f"In this example, it is {correct_predictions}/{len(predictions)}.\n\n")
+
+    else:
+        mae = mean_absolute_error(y_test, predictions)
+        print(f"Mean Absolute Error (MAE): {mae:.4f}")
+        print("The Mean Absolute Error (MAE) tells us, on average, how far off")
+        print("one prediction are from the actual value.")
+        print(f"In this example, it means, on avereage, every predition is {mae:.4f} far from the actual value.\n\n" )
+
+        # Optional: Display some of the best and worst predictions
+        errors = np.abs(np.array(predictions) - y_test)
+        # Handle divide by zero
+        mask_zero = (predictions == 0)
+        relative_errors = np.where(mask_zero, errors, errors/predictions)
+
+        # Get sorted indices
+        sorted_indices = np.argsort(relative_errors)
+        print("5 Best Predictions:")
+        for idx in sorted_indices[:5]:
+            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
+        print("\n5 Worst Predictions:")
+        for idx in sorted_indices[-5:]:
+            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
+    # 4. Visualization:
+
+    if TASK_TYPE == 'classification' and len(CLASS_LABEL_MAP) == 2:
+      # Convert y_test and predictions to string
+        y_test = y_test.astype(str) #string
+        predictions = predictions.astype(str) #string
+        # Calculate the confusion matrix
+        cm = confusion_matrix(y_test, predictions)
+
+        # Define the labels for the axes
+        labels = list(CLASS_LABEL_MAP.keys())
+        x_ticks_labels = ["Predicted " + s for s in labels]
+        y_ticks_labels = ["True " + s for s in labels]
+
+        # Use Seaborn to create the heatmap
+        plt.figure(figsize=(4, 3))
+        sns.heatmap(cm, annot=True, cmap="Blues", fmt='g',
+                    xticklabels=x_ticks_labels,
+                    yticklabels=y_ticks_labels)
+
+        # Set the title
+        plt.title("Confusion Matrix")
+        plt.show()
+
+    elif TASK_TYPE == 'regression':
+        plt.figure(figsize=(4, 3))  # Adjust the size of the plot if needed
+
+        # Scatter plot
+        plt.scatter(y_test, predictions, alpha=0.5, color='blue', label='Predicted vs True')
+        plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', label='Ideal Prediction Line')  # Diagonal line
+
+        plt.xlabel('True Values')
+        plt.ylabel('Predicted Values')
+        plt.legend(loc='upper left')  # Display the legend
+        plt.show()
+
+    # Data Reconstruction
+    if TASK_TYPE == "classification":
+        INVERSE_CLASS_LABEL_MAP = {v: k for k, v in CLASS_LABEL_MAP.items()}
+        predictions = [INVERSE_CLASS_LABEL_MAP[int(pred)] for pred in predictions]
+        # class names, for example "Yes", "No"
+
+    # CSV Creation
+    df.insert(1, 'Predictions', predictions)
+    df.to_csv('with_prediction.csv', index=False)
+
+    # Downloading the CSV
+    files.download('with_prediction.csv')
