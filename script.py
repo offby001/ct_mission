@@ -50,6 +50,9 @@ PROCESSED_FULL_DATASET = None
 FILE_NAME = None
 SCALER = None
 SCALER_Y = None
+MODEL = None 
+CRITERION =  None
+OPTIMIZER = None
 
 # Constants for dataset format
 ACTUAL_VALUE_COL = 0
@@ -308,12 +311,6 @@ class NeuralNetwork(nn.Module):
             x = x.squeeze(-1)
         return x
 
-model = NeuralNetwork()
-criterion = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
-
-
-
 # Define the training function
 def train_one_epoch(model, loader, criterion, optimizer):
     model.train()
@@ -332,7 +329,7 @@ def ModelTraining():
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
-    global FILE_NAME, SCALER, SCALER_Y, M, N
+    global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER
     FILE_NAME = 'training_data.csv'
 
     # Load the data
@@ -356,6 +353,10 @@ def ModelTraining():
     X_train = SCALER.fit_transform(X)
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+
+    MODEL = NeuralNetwork()
+    CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
+    OPTIMIZER = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
     
     # Step 3: Training
     num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
@@ -375,7 +376,7 @@ def ModelTraining():
     
 def ModelEvaluation():
     # 1. Setup and Information from the Early Step:
-    global FILE_NAME, SCALER, SCALER_Y
+    global FILE_NAME, SCALER, SCALER_Y, MODEL
     # Reading Data
     FILE_NAME = 'testing_data.csv'
     df = pd.read_csv(FILE_NAME)
@@ -397,7 +398,7 @@ def ModelEvaluation():
     test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 
     # Set the model to evaluation mode
-    model.eval()
+    MODEL.eval()
 
     # 2. Evaluate the Test Dataset:
 
