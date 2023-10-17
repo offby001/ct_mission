@@ -227,7 +227,7 @@ def DataPreProcessing(file_name):
     pd.set_option('display.max_columns', 5)
     print(FULL_DATASET)
     print("Now let's validate the dataset...")
-    #time.sleep(3)
+    time.sleep(2)
     # Step 2: FullDataSetValidation
     try:
         print(FullDataSetValidation())
@@ -238,7 +238,7 @@ def DataPreProcessing(file_name):
 
 
     print("Now let's process the features ...")
-    #time.sleep(3)
+    time.sleep(2)
     # Step 3: ProcessFeatures
     try:
         print(ProcessFeatures())
@@ -250,7 +250,7 @@ def DataPreProcessing(file_name):
         return
     if TASK_TYPE == "classification":
         print("Now let's us map the class names to class labels...")
-        #time.sleep(3)
+        time.sleep(2)
 
     # Step 4: MakeClassLabels
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
@@ -263,7 +263,7 @@ def DataPreProcessing(file_name):
             return
 
     print("Now let's generate files for trainign and testing...")
-    #time.sleep(3)
+    time.sleep(2)
     # Step 5: GenereatingNewfiles
     try:
         print(GenereatingNewfiles())
@@ -455,7 +455,7 @@ def ModelEvaluation():
         for idx in sorted_indices[-5:]:
             print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
     # 4. Visualization:
-
+    time.sleep(3)
     if TASK_TYPE == 'classification' and len(CLASS_LABEL_MAP) == 2:
       # Convert y_test and predictions to string
         y_test = y_test.astype(str) #string
