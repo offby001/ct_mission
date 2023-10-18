@@ -289,11 +289,11 @@ def layer_block(in_features, out_features):
     )
 
 
-class medium(nn.Module):
+class Medium(nn.Module):
 
     def __init__(self):
         global M, N
-        super(NeuralNetwork, self).__init__()
+        super(Medium, self).__init__()
         self.block1 = layer_block(M, (2*M+N)//3)
         self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
         self.fc_out = nn.Linear((M+2*N)//3, N)
@@ -317,7 +317,7 @@ class Small(nn.Module):
 
     def __init__(self):
         global M, N
-        super(NeuralNetwork, self).__init__()
+        super(Small, self).__init__()
         
         # Expanding Pyramid structure
         self.block = layer_block(M, (M+N)//2)
@@ -342,7 +342,7 @@ class Large(nn.Module):
 
     def __init__(self):
         global M, N
-        super(NeuralNetwork, self).__init__()
+        super(Large, self).__init__()
         
         # Expanding Pyramid structure
         self.block1 = layer_block(M, (3*M+N)//4)
