@@ -382,12 +382,11 @@ def train_one_epoch(model, loader, criterion, optimizer):
 
 def ModelTraining(Model_Input):
     if isinstance(Model_Input, str):
-        print ("Error: Please enter Small, Medium or Large,  WITHOUG quotation marks")
+        print ("Error: Please enter Small, Medium or Large,  WITHOUT quotation marks")
         return
     if str(Model_input) not in ['Small','Medium','Large']: 
         print("Please enter Small, Medium or Large")
         return 
-    if str((Model_input))
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
