@@ -384,11 +384,11 @@ def ModelTraining(input_model):
         print ("Error: Please enter Small, Medium or Large,  WITHOUT quotation marks")
         return
     '''
-    if Model_Input not in ['Small','Medium','Large']: 
+    if input_model not in ['Small','Medium','Large']: 
         print("Please enter 'Small','Medium' or 'Large', with quotation marks")
         return
 
-    Model_Input = globals()[Model_Input]
+    Model_Input = globals()[input_model]
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
