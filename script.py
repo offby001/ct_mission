@@ -358,7 +358,7 @@ def ModelTraining():
 
     MODEL = NeuralNetwork()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
-    CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.nn.L1Loss()
+    CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
     
     # Step 3: Training
