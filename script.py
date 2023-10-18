@@ -207,15 +207,14 @@ def FilesDownloading():
         return
     
 
-def DataPreProcessing(file_name):
+def DataPreProcessing():
         # Step 1: FullDataSetUpload
     try:
         '''
         print(FullDataSetUpload())
         '''
         global FULL_DATASET
-        FULL_DATASET = None
-        FULL_DATASET = pd.read_csv(file_name)
+        FULL_DATASET = pd.read_csv("Full_DataSet.csv")
         print("Dataset Uploaded Successfully!\n\n")
         
         
@@ -415,7 +414,8 @@ def ModelTraining(Model_Input):
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    MODEL = Model_Input()
+    #MODEL = Model_Input()
+    MODEL = Small()
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
