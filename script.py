@@ -379,14 +379,16 @@ def train_one_epoch(model, loader, criterion, optimizer):
     return running_loss / len(loader.dataset)
 
 
-def ModelTraining(Model_Input):
+def ModelTraining(input_model):
     '''if isinstance(Model_Input, str):
         print ("Error: Please enter Small, Medium or Large,  WITHOUT quotation marks")
         return
     '''
     if Model_Input not in ['Small','Medium','Large']: 
         print("Please enter 'Small','Medium' or 'Large', with quotation marks")
-        return 
+        return
+
+    Model_Input = globals()[Model_Input]
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
@@ -415,8 +417,8 @@ def ModelTraining(Model_Input):
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    #MODEL = Model_Input()
-    MODEL = Small()
+    MODEL = Model_Input()
+    # MODEL = Small()
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
