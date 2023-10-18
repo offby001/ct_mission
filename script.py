@@ -380,9 +380,10 @@ def train_one_epoch(model, loader, criterion, optimizer):
 
 
 def ModelTraining(Model_Input):
-    if isinstance(Model_Input, str):
+    '''if isinstance(Model_Input, str):
         print ("Error: Please enter Small, Medium or Large,  WITHOUT quotation marks")
         return
+    '''
     if str(Model_input) not in ['Small','Medium','Large']: 
         print("Please enter Small, Medium or Large")
         return 
