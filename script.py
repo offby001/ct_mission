@@ -288,7 +288,7 @@ def layer_block(in_features, out_features):
         nn.Dropout(0.3)
     )
 
-
+'''
 class NeuralNetwork(nn.Module):
 
     def __init__(self):
@@ -312,7 +312,35 @@ class NeuralNetwork(nn.Module):
         if N == 1:  # Regression
             x = x.squeeze(-1)
         return x
+'''
+class NeuralNetwork(nn.Module):
 
+    def __init__(self):
+        global M, N
+        super(NeuralNetwork, self).__init__()
+        
+        # Expanding Pyramid structure
+        self.block1 = layer_block(M, (3*M+N)//4)
+        self.block2 = layer_block((3*M+N)//4, (M+N)//2)
+        self.block3 = layer_block((M+N)//2, (M+3*N)//4)
+        
+        self.fc_out = nn.Linear((M+3*N)//4, N)
+        self.init_weights()
+
+    def init_weights(self):
+        for layer in [self.block1[0], self.block2[0], self.block3[0], self.fc_out]:
+            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
+            nn.init.zeros_(layer.bias)
+
+    def forward(self, x):
+        global M, N
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.fc_out(x)
+        if N == 1:  # Regression
+            x = x.squeeze(-1)
+        return x
 # Define the training function
 def train_one_epoch(model, loader, criterion, optimizer):
     model.train()
