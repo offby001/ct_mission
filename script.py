@@ -288,8 +288,8 @@ def layer_block(in_features, out_features):
         nn.Dropout(0.3)
     )
 
-'''
-class NeuralNetwork(nn.Module):
+
+class medium(nn.Module):
 
     def __init__(self):
         global M, N
@@ -312,8 +312,8 @@ class NeuralNetwork(nn.Module):
         if N == 1:  # Regression
             x = x.squeeze(-1)
         return x
-'''
-class NeuralNetwork(nn.Module):
+
+class Small(nn.Module):
 
     def __init__(self):
         global M, N
@@ -337,6 +337,35 @@ class NeuralNetwork(nn.Module):
         if N == 1:  # Regression
             x = x.squeeze(-1)
         return x
+
+class Large(nn.Module):
+
+    def __init__(self):
+        global M, N
+        super(NeuralNetwork, self).__init__()
+        
+        # Expanding Pyramid structure
+        self.block1 = layer_block(M, (3*M+N)//4)
+        self.block2 = layer_block((3*M+N)//4, (M+N)//2)
+        self.block3 = layer_block((M+N)//2, (M+3*N)//4)
+        
+        self.fc_out = nn.Linear((M+3*N)//4, N)
+        self.init_weights()
+
+    def init_weights(self):
+        for layer in [self.block1[0], self.block2[0], self.block3[0], self.fc_out]:
+            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
+            nn.init.zeros_(layer.bias)
+
+    def forward(self, x):
+        global M, N
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.fc_out(x)
+        if N == 1:  # Regression
+            x = x.squeeze(-1)
+        return x
 # Define the training function
 def train_one_epoch(model, loader, criterion, optimizer):
     model.train()
@@ -351,7 +380,14 @@ def train_one_epoch(model, loader, criterion, optimizer):
     return running_loss / len(loader.dataset)
 
 
-def ModelTraining():
+def ModelTraining(Model_Input):
+    if isinstance(Model_Input, str):
+        print ("Error: Please enter Small, Medium or Large,  WITHOUG quotation marks")
+        return
+    if str(Model_input) not in ['Small','Medium','Large']: 
+        print("Please enter Small, Medium or Large")
+        return 
+    if str((Model_input))
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
@@ -380,7 +416,7 @@ def ModelTraining():
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    MODEL = NeuralNetwork()
+    MODEL = Model_Input()
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
