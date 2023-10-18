@@ -521,7 +521,7 @@ def ModelEvaluation():
             print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
     # 4. Visualization:
     time.sleep(WAIT_TIME)
-    if TASK_TYPE == 'classification' and len(CLASS_LABEL_MAP) == 2:
+    if TASK_TYPE == 'classification':
       # Convert y_test and predictions to string
         y_test = y_test.astype(str) #string
         predictions = predictions.astype(str) #string
@@ -540,7 +540,7 @@ def ModelEvaluation():
                     yticklabels=y_ticks_labels)
 
         # Set the title
-        plt.title("Confusion Matrix")
+        plt.title("Details")
         plt.show()
 
     elif TASK_TYPE == 'regression':
