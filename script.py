@@ -384,6 +384,7 @@ class DynamicNN(nn.Module):
 
         for i in range(1, size+1):
             out_features = (((size+1-i)*M + i*N) // (size+1))
+            print(i, size)
             layers.append(layer_block(in_features, out_features))
             in_features = out_features
 
