@@ -287,7 +287,7 @@ def layer_block(in_features, out_features):
         nn.Dropout(0.3)
     )
 
-
+'''
 class Medium(nn.Module):
 
     def __init__(self):
@@ -365,6 +365,54 @@ class Large(nn.Module):
         if N == 1:  # Regression
             x = x.squeeze(-1)
         return x
+'''
+
+def layer_block(in_features, out_features):
+    return nn.Sequential(
+        nn.Linear(in_features, out_features),
+        nn.BatchNorm1d(out_features),
+        nn.ReLU(),
+        nn.Dropout(0.3)
+    )
+
+class DynamicNN(nn.Module):
+    def __init__(self, size):
+        super(DynamicNN, self).__init__()
+
+        layers = []
+        in_features = M
+
+        for i in range(1, size+1):
+            out_features = (((size+1-i)*M + i*N) // (size+1))
+            layers.append(layer_block(in_features, out_features))
+            in_features = out_features
+
+        # Output layer
+        self.fc_out = nn.Linear(in_features, N)
+        
+        # Combine all layers
+        self.layers = nn.Sequential(*layers)
+
+        # Initialize weights
+        self.init_weights()
+
+    def init_weights(self):
+        for block in self.layers:
+            for layer in block:
+                if isinstance(layer, nn.Linear):
+                    nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
+                    nn.init.zeros_(layer.bias)
+        
+        nn.init.kaiming_normal_(self.fc_out.weight, nonlinearity='relu')
+        nn.init.zeros_(self.fc_out.bias)
+
+    def forward(self, x):
+        x = self.layers(x)
+        x = self.fc_out(x)
+        if N == 1:  # Regression
+            x = x.squeeze(-1)
+        return x
+
 # Define the training function
 def train_one_epoch(model, loader, criterion, optimizer):
     model.train()
@@ -379,16 +427,19 @@ def train_one_epoch(model, loader, criterion, optimizer):
     return running_loss / len(loader.dataset)
 
 
-def ModelTraining(input_model):
-    '''if isinstance(Model_Input, str):
-        print ("Error: Please enter Small, Medium or Large,  WITHOUT quotation marks")
-        return
-    '''
-    if input_model not in ['Small','Medium','Large']: 
-        print("Please enter 'Small','Medium' or 'Large', with quotation marks")
+def ModelTraining(model_size):
+    if model_size not in ['XSmall','Small','Medium','Large', 'XLarge']: 
+        print("Please enter XSmall','Small','Medium','Large' or 'XLarge', with quotation marks")
         return
 
-    Model_Input = globals()[input_model]
+    size_mapping = {
+        'XSmall': 0,
+        'Small': 1,
+        'Medium': 2,
+        'Large': 3,
+        'XLarge': 4
+    }
+    
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
@@ -417,7 +468,7 @@ def ModelTraining(input_model):
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    MODEL = Model_Input()
+    MODEL = DynamicNN(size_mapping[model_size])
     # MODEL = Small()
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
