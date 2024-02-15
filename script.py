@@ -4,8 +4,8 @@ Description: This module is to facilitate the mission in the Course CT.
 
 @author: offby001
 @email: offby001@gmail.com
-@date: October 18, 2023
-@version: 1.0.0
+@date: 15 Feb, 2024
+@version: 1.1.0
 
 """
 # Importing Necessary Libraries
@@ -287,85 +287,6 @@ def layer_block(in_features, out_features):
         nn.Dropout(0.3)
     )
 
-'''
-class Medium(nn.Module):
-
-    def __init__(self):
-        global M, N
-        super(Medium, self).__init__()
-        self.block1 = layer_block(M, (2*M+N)//3)
-        self.block2 = layer_block((2*M+N)//3, (M+2*N)//3)
-        self.fc_out = nn.Linear((M+2*N)//3, N)
-        self.init_weights()
-
-    def init_weights(self):
-        for layer in [self.block1[0], self.block2[0], self.fc_out]:
-            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
-            nn.init.zeros_(layer.bias)
-
-    def forward(self, x):
-        global M, N
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.fc_out(x)
-        if N == 1:  # Regression
-            x = x.squeeze(-1)
-        return x
-
-class Small(nn.Module):
-
-    def __init__(self):
-        global M, N
-        super(Small, self).__init__()
-        
-        # Expanding Pyramid structure
-        self.block = layer_block(M, (M+N)//2)
-        
-        self.fc_out = nn.Linear((M+N)//2, N)
-        self.init_weights()
-
-    def init_weights(self):
-        for layer in [self.block[0],  self.fc_out]:
-            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
-            nn.init.zeros_(layer.bias)
-
-    def forward(self, x):
-        global M, N
-        x = self.block(x)
-        x = self.fc_out(x)
-        if N == 1:  # Regression
-            x = x.squeeze(-1)
-        return x
-
-class Large(nn.Module):
-
-    def __init__(self):
-        global M, N
-        super(Large, self).__init__()
-        
-        # Expanding Pyramid structure
-        self.block1 = layer_block(M, (3*M+N)//4)
-        self.block2 = layer_block((3*M+N)//4, (M+N)//2)
-        self.block3 = layer_block((M+N)//2, (M+3*N)//4)
-        
-        self.fc_out = nn.Linear((M+3*N)//4, N)
-        self.init_weights()
-
-    def init_weights(self):
-        for layer in [self.block1[0], self.block2[0], self.block3[0], self.fc_out]:
-            nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
-            nn.init.zeros_(layer.bias)
-
-    def forward(self, x):
-        global M, N
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.block3(x)
-        x = self.fc_out(x)
-        if N == 1:  # Regression
-            x = x.squeeze(-1)
-        return x
-'''
 
 def layer_block(in_features, out_features):
     return nn.Sequential(
@@ -384,7 +305,6 @@ class DynamicNN(nn.Module):
 
         for i in range(1, size+1):
             out_features = (((size+1-i)*M + i*N) // (size+1))
-            print(size+1-i, i, size+1, M, N)
             layers.append(layer_block(in_features, out_features))
             in_features = out_features
 
@@ -470,7 +390,7 @@ def ModelTraining(model_size):
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     MODEL = DynamicNN(size_mapping[model_size])
-    # MODEL = Small()
+
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
@@ -491,7 +411,7 @@ def ModelTraining(model_size):
     plt.ylabel('Loss')
     plt.show()
     
-def ModelEvaluation():
+def ModelEvaluation(DownLoad = True):
     # 1. Setup and Information from the Early Step:
     global FILE_NAME, SCALER, SCALER_Y, MODEL
     # Reading Data
@@ -618,4 +538,4 @@ def ModelEvaluation():
     df.to_csv('with_prediction.csv', index=False)
 
     # Downloading the CSV
-    files.download('with_prediction.csv')
+    if DownLoad: files.download('with_prediction.csv')
