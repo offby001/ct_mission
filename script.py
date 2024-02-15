@@ -53,7 +53,7 @@ SCALER_Y = None
 MODEL = None 
 CRITERION =  None
 OPTIMIZER = None
-WAIT_TIME = 0
+WAIT_TIME = 1
 
 # Constants for dataset format
 ACTUAL_VALUE_COL = 0
