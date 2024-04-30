@@ -348,19 +348,12 @@ def train_one_epoch(model, loader, criterion, optimizer):
     return running_loss / len(loader.dataset)
 
 
-def ModelTraining(model_size):
-    if model_size not in ['XSmall','Small','Medium','Large', 'XLarge']: 
-        print("Please enter XSmall','Small','Medium','Large' or 'XLarge', with quotation marks")
+def ModelTraining(number_hidden_layers):
+    if type(number_hidden_layers) != int: or number_hidden_layers > 4 or number_hidden_layers < 0 : 
+        print("Please enter an integer between 0 and 4, both inclusive")
         return
 
-    size_mapping = {
-        'XSmall': 0,
-        'Small': 1,
-        'Medium': 2,
-        'Large': 3,
-        'XLarge': 4
-    }
-    
+   
     # Step 1: File uploading
     #uploaded = files.upload()
     #file_name = list(uploaded.keys())[0]
@@ -389,7 +382,7 @@ def ModelTraining(model_size):
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    MODEL = DynamicNN(size_mapping[model_size])
+    MODEL = DynamicNN(number_hidden_layers)
 
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
