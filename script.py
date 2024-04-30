@@ -349,7 +349,7 @@ def train_one_epoch(model, loader, criterion, optimizer):
 
 
 def ModelTraining(number_hidden_layers):
-    if type(number_hidden_layers) != int: or number_hidden_layers > 4 or number_hidden_layers < 0 : 
+    if type(number_hidden_layers) != int or number_hidden_layers > 4 or number_hidden_layers < 0 : 
         print("Please enter an integer between 0 and 4, both inclusive")
         return
 
