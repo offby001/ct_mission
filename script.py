@@ -495,8 +495,8 @@ def ModelEvaluation(DownLoad = True):
 
         # Define the labels for the axes
         labels = list(CLASS_LABEL_MAP.keys())
-        x_ticks_labels = ["Predicted " + s for s in labels]
-        y_ticks_labels = ["True " + s for s in labels]
+        x_ticks_labels = ["Predicted " + str(s) for s in labels]
+        y_ticks_labels = ["True " + str(s) for s in labels]
 
         # Use Seaborn to create the heatmap
         plt.figure(figsize=(4, 3))
