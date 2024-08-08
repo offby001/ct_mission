@@ -177,9 +177,17 @@ def MakeClassLabels():
         le = LabelEncoder()
         data_without_type = FULL_DATASET.drop(TYPE_ROW, axis=0).copy()
 
-        le.fit(data_without_type.iloc[:, ACTUAL_VALUE_COL])
-        CLASS_LABEL_MAP = dict(zip(le.classes_, le.transform(le.classes_)))
-        return f"For this classification Task, {len(CLASS_LABEL_MAP)} Class Labels Mapped Successfully!\n\n"
+        if ACTUAL_VALUE_COL >= len(FULL_DATASET.columns):
+            print(f"Error: ACTUAL_VALUE_COL ({ACTUAL_VALUE_COL}) is out of bounds.")
+            return
+
+        try:
+            le.fit(data_without_type.iloc[:, ACTUAL_VALUE_COL])
+            CLASS_LABEL_MAP = dict(zip(le.classes_, le.transform(le.classes_)))
+            return f"For this classification task, {len(CLASS_LABEL_MAP)} class labels mapped successfully!\n\n"
+        except Exception as e:
+            print(f"Error in label encoding: {e}")
+            return
 
 def GenereatingNewfiles():
     # Splitting the data
@@ -353,10 +361,6 @@ def ModelTraining(number_hidden_layers):
         print("Please enter an integer between 0 and 4, both inclusive")
         return
 
-   
-    # Step 1: File uploading
-    #uploaded = files.upload()
-    #file_name = list(uploaded.keys())[0]
     global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER
     FILE_NAME = 'training_data.csv'
 
@@ -369,7 +373,20 @@ def ModelTraining(number_hidden_layers):
     # Handle class labels if it's a classification task
     if TASK_TYPE == 'classification':
         N = len(set(y))  # Number of classes
+        # Check for missing labels in CLASS_LABEL_MAP
+        unique_labels = set(y)
+        missing_labels = [label for label in unique_labels if label not in CLASS_LABEL_MAP]
+        if missing_labels:
+            print("Missing labels in CLASS_LABEL_MAP:", missing_labels)
+            return
+
+        # Map class labels
         y = np.vectorize(CLASS_LABEL_MAP.get)(y)
+
+        # Ensure y is of type int after mapping and check for None values
+        if None in y:
+            print("Error: Some labels were not mapped correctly, resulting in None values.")
+            return
 
         # Ensure y is of type int after mapping
         try:
