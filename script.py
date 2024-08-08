@@ -53,6 +53,8 @@ SCALER_Y = None
 MODEL = None 
 CRITERION =  None
 OPTIMIZER = None
+TRAIN_DATA = None
+TEST_DATA = None
 WAIT_TIME = 1
 
 # Constants for dataset format
@@ -194,7 +196,7 @@ def MakeClassLabels():
 def GenereatingNewfiles():
     # Splitting the data
     # PROCESSED_FULL_DATASET.to_csv("processed_data.csv",index = False)
-    train_data, test_data = train_test_split(PROCESSED_FULL_DATASET, test_size=0.2, random_state=42)
+    TRAIN_DATA, TEST_DATA = train_test_split(PROCESSED_FULL_DATASET, test_size=0.2, random_state=42)
 
     # Saving to CSV
     train_file_path = 'training_data.csv'
@@ -363,11 +365,10 @@ def ModelTraining(number_hidden_layers):
         print("Please enter an integer between 0 and 4, both inclusive")
         return
 
-    global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER
-    FILE_NAME = 'training_data.csv'
-
+    global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER, TRAIN_DATA
+  
     # Load the data
-    data = pd.read_csv(FILE_NAME)
+    data = TRAIN_DATA
     X = data.iloc[:, 1:].values
     y = data.iloc[:, 0].values
     M = X.shape[1]  # Number of features
