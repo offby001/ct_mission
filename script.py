@@ -195,15 +195,15 @@ def MakeClassLabels():
 
 def GenereatingNewfiles():
     # Splitting the data
-    # PROCESSED_FULL_DATASET.to_csv("processed_data.csv",index = False)
+    global TRAIN_DATA, TEST_DATA
     TRAIN_DATA, TEST_DATA = train_test_split(PROCESSED_FULL_DATASET, test_size=0.2, random_state=42)
 
     # Saving to CSV
     train_file_path = 'training_data.csv'
     test_file_path = 'testing_data.csv'
 
-    train_data.to_csv(train_file_path, index=False)
-    test_data.to_csv(test_file_path, index=False)
+    TRAIN_DATA.to_csv(train_file_path, index=False)
+    TEST_DATA.to_csv(test_file_path, index=False)
     return "Files Generated Successfully!\n\n"
 
 def FilesDownloading():
