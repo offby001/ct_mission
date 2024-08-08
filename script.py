@@ -132,7 +132,7 @@ def ProcessFeatures():
     processed_data = pd.DataFrame()
 
     # Add actual values column (leftmost) to the processed_data
-        processed_data[FULL_DATASET.columns[ACTUAL_VALUE_COL]] = data_without_type.iloc[:, ACTUAL_VALUE_COL].astype(str)  # Ensure labels are treated as strings
+    processed_data[FULL_DATASET.columns[ACTUAL_VALUE_COL]] = data_without_type.iloc[:, ACTUAL_VALUE_COL].astype(str)  # Ensure labels are treated as strings
 
     # Iterate over columns to process them based on type
     for idx, col_name in enumerate(data_without_type.columns[1:], start=1):  # starting from 1 to skip the actual value column
