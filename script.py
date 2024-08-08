@@ -437,6 +437,9 @@ def ModelEvaluation(DownLoad = True):
     y_test = df.iloc[:, 0].values
     X_test = df.iloc[:, 1:].values
 
+    print(f"Original y_test dtype: {y_test.dtype}")
+    print(f"Unique values in y_test: {np.unique(y_test)}")
+
     # Preprocessing
     X_test = SCALER.transform(X_test)
 
