@@ -431,10 +431,9 @@ def ModelTraining(number_hidden_layers):
     
 def ModelEvaluation(DownLoad = True):
     # 1. Setup and Information from the Early Step:
-    global FILE_NAME, SCALER, SCALER_Y, MODEL
+    global FILE_NAME, SCALER, SCALER_Y, MODEL,  TEST_DATA
     # Reading Data
-    FILE_NAME = 'testing_data.csv'
-    df = pd.read_csv(FILE_NAME)
+    df = TEST_DATA
     y_test = df.iloc[:, 0].values
     X_test = df.iloc[:, 1:].values
 
