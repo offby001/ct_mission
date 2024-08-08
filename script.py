@@ -366,7 +366,7 @@ def ModelTraining(number_hidden_layers):
     global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER, TRAIN_DATA
   
     # Load the data
-    data = TRAIN_DATA
+    data = TRAIN_DATA.copy()
     X = data.iloc[:, 1:].values
     y = data.iloc[:, 0].values
     M = X.shape[1]  # Number of features
@@ -433,7 +433,7 @@ def ModelEvaluation(DownLoad = True):
     # 1. Setup and Information from the Early Step:
     global FILE_NAME, SCALER, SCALER_Y, MODEL,  TEST_DATA
     # Reading Data
-    df = TEST_DATA
+    df = TEST_DATA.copy()
     y_test = df.iloc[:, 0].values
     X_test = df.iloc[:, 1:].values
 
