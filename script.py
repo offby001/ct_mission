@@ -370,6 +370,13 @@ def ModelTraining(number_hidden_layers):
     if TASK_TYPE == 'classification':
         N = len(set(y))  # Number of classes
         y = np.vectorize(CLASS_LABEL_MAP.get)(y)
+
+        # Ensure y is of type int after mapping
+        try:
+            y = y.astype(int)
+        except ValueError as e:
+            print("Error in converting class labels to integers:", e)
+            return
         y_tensor = torch.tensor(y, dtype=torch.long)
     else:
         N = 1
