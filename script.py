@@ -184,7 +184,9 @@ def MakeClassLabels():
         try:
             le.fit(data_without_type.iloc[:, ACTUAL_VALUE_COL])
             CLASS_LABEL_MAP = dict(zip(le.classes_, le.transform(le.classes_)))
-            return f"For this classification task, {len(CLASS_LABEL_MAP)} class labels mapped successfully, as showing below."
+            print (f"For this classification task, {len(CLASS_LABEL_MAP)} class labels mapped successfully, as shown below.")
+            print(CLASS_LABEL_MAP)
+            return
         except Exception as e:
             print(f"Error in label encoding: {e}")
             return
@@ -263,8 +265,7 @@ def DataPreProcessing():
     # Step 4: MakeClassLabels
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
         try:
-            print(MakeClassLabels())
-            print(CLASS_LABEL_MAP)
+            MakeClassLabels()
             print("\n\n")
         except Exception as e:
             print("Error appeared at the MakeClassLabels step. Please check your input or seek help from teachers.")
