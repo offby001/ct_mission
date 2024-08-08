@@ -1,11 +1,9 @@
 """
 Module Name: script.py
-Description: This module is to facilitate the mission in the Course CT. 
+Description: This module is to facilitate the mission in the Course CT of NUS High School. 
 
-@author: offby001
-@email: offby001@gmail.com
-@date: 15 Feb, 2024
-@version: 1.1.0
+@date: 15 Aug, 2024
+@version: 0.90
 
 """
 # Importing Necessary Libraries
