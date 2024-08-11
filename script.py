@@ -505,10 +505,10 @@ def ModelEvaluation(DownLoad = True):
         sorted_indices = np.argsort(relative_errors)
         print("5 Best Predictions:")
         for idx in sorted_indices[:5]:
-            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
+            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]:.4f}")
         print("\n5 Worst Predictions:")
         for idx in sorted_indices[-5:]:
-            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]}")
+            print(f"True: {y_test[idx]}, Predicted: {predictions[idx]:.4f}")
     # 4. Visualization:
     time.sleep(WAIT_TIME)
     if TASK_TYPE == 'classification':
