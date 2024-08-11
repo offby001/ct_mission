@@ -498,8 +498,9 @@ def ModelEvaluation(DownLoad = True):
         # Optional: Display some of the best and worst predictions
         errors = np.abs(np.array(predictions) - y_test)
         # Handle divide by zero
-        mask_zero = (predictions == 0)
-        relative_errors = np.where(mask_zero, errors, errors/predictions)
+        
+        mask_zero = (y_test == 0)
+        relative_errors = np.where(mask_zero, errors, errors / y_test)
 
         # Get sorted indices
         sorted_indices = np.argsort(relative_errors)
