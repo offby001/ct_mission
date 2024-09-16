@@ -505,7 +505,7 @@ def ModelEvaluation(DownLoad = True):
         # Get sorted indices
         sorted_indices = np.argsort(relative_errors)
         print("The error is defined as the difference between the true value and the prediction.")
-        print("The relative errors is defined as the error divided by the true value when the true value is not 0, and the error itself otherwise.")
+        print("The relative error is defined as the error divided by the true value when the true value is not 0, and the error itself otherwise.")
         print("The best/worst below is determined by the relative errors.")
         print("5 Best Predictions:")
         for idx in sorted_indices[:5]:
