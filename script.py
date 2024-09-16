@@ -419,7 +419,7 @@ def ModelTraining(number_hidden_layers):
     losses = []
     for epoch in tqdm(range(num_epochs), desc="Training"):
         train_loss = train_one_epoch(MODEL, train_loader, CRITERION, OPTIMIZER)
-        if epoch % recording_interval == recording_interval - 1 or epoch == 1:
+        if epoch % recording_interval == recording_interval - 1 or epoch == 0:
             losses.append(train_loss)
             print(f'Epoch {epoch+1:>5}/{num_epochs:>5}, Loss: {train_loss:>.4f}')
 
