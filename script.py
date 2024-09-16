@@ -414,8 +414,8 @@ def ModelTraining(number_hidden_layers):
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
     
     # Step 3: Training
-    num_epochs = max(min(int(input("Enter the number of epochs: ")), 1000),20)
-    recording_interval = num_epochs // 20 + 1
+    num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
+    recording_interval = max(num_epochs // 20, 1)
     losses = []
     for epoch in tqdm(range(num_epochs), desc="Training"):
         train_loss = train_one_epoch(MODEL, train_loader, CRITERION, OPTIMIZER)
