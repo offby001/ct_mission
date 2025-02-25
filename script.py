@@ -415,7 +415,7 @@ def ModelTraining(number_hidden_layers):
     
     # Step 3: Training
     num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
-    recording_interval = max(num_epochs // 20, 1)
+    recording_interval = max(num_epochs // 10, 1)
     losses = []
     for epoch in tqdm(range(num_epochs), desc="Training"):
         train_loss = train_one_epoch(MODEL, train_loader, CRITERION, OPTIMIZER)
