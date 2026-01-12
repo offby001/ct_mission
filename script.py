@@ -1,9 +1,9 @@
 """
 Module Name: script.py
-Description: This module is to facilitate the mission in the Course CT of NUS High School. 
+Description: This code is to facilitate the work in the Course CT2.0 of NUS High School.
 
-@date: 15 Aug, 2024
-@version: 0.90
+@date: 15 Jan , 2026
+@version: 0.91
 
 """
 # Importing Necessary Libraries
@@ -14,9 +14,10 @@ import time
 # For data manipulation
 import pandas as pd
 import numpy as np
-
+import random
 # For file operations in Google Colab
 from google.colab import files
+import os
 
 # For preprocessing
 from sklearn.impute import SimpleImputer
@@ -48,12 +49,16 @@ PROCESSED_FULL_DATASET = None
 FILE_NAME = None
 SCALER = None
 SCALER_Y = None
-MODEL = None 
+MODEL = None
 CRITERION =  None
 OPTIMIZER = None
 TRAIN_DATA = None
 TEST_DATA = None
 WAIT_TIME = 1
+
+# Random / Reproducibility Settings
+USE_FIXED_SEED = False     # default: random each run
+FIXED_SEED = 42            # seed used when fixed mode is enabled
 
 # Constants for dataset format
 ACTUAL_VALUE_COL = 0
@@ -63,6 +68,33 @@ TASK_TYPE = 0
 CUTOFF_FOR_LABEL_ENCODING = 5
 M = 1
 N = 1
+
+def SetRandom(fixed: bool = False, seed: int = 42):
+    """
+    - fixed=False: random mode (non-reproducible)
+    - fixed=True: reproducible using 'seed'
+    """
+    global USE_FIXED_SEED, FIXED_SEED
+    USE_FIXED_SEED = fixed
+    FIXED_SEED = int(seed)
+
+    if USE_FIXED_SEED:
+        _seed_everything(FIXED_SEED)
+        print(f"[Random Setting] Fixed seed enabled: {FIXED_SEED}")
+    else:
+        print("[Random Setting] Random mode enabled (non-reproducible).")
+
+def _seed_everything(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 
 # Function Definitions
 
@@ -194,7 +226,10 @@ def MakeClassLabels():
 def GenereatingNewfiles():
     # Splitting the data
     global TRAIN_DATA, TEST_DATA
-    TRAIN_DATA, TEST_DATA = train_test_split(PROCESSED_FULL_DATASET, test_size=0.2, random_state=42)
+
+    random_state = FIXED_SEED if USE_FIXED_SEED else None
+    TRAIN_DATA, TEST_DATA = train_test_split(PROCESSED_FULL_DATASET, test_size=0.2, random_state=random_state)
+
 
     # Saving to CSV
     train_file_path = 'training_data.csv'
@@ -206,7 +241,7 @@ def GenereatingNewfiles():
 
 def FilesDownloading():
 
-    
+
     try:
         # Trigger automatic download
         files.download('training_data.csv')
@@ -215,7 +250,7 @@ def FilesDownloading():
         print("Error appeared at the FilesDownloading step. Please check your input or seek help from teachers.")
         print(f"Technical details: {e}")
         return
-    
+
 
 def DataPreProcessing():
         # Step 1: FullDataSetUpload
@@ -226,8 +261,8 @@ def DataPreProcessing():
         global FULL_DATASET
         FULL_DATASET = pd.read_csv("Full_DataSet.csv")
         print("Dataset Uploaded Successfully!\n\n")
-        
-        
+
+
     except Exception as e:
         print("Error appeared at the FullDataSetUpload step. Please check your input or seek help from teachers.")
         print(f"Technical details: {e}")
@@ -320,7 +355,7 @@ class DynamicNN(nn.Module):
 
         # Output layer
         self.fc_out = nn.Linear(in_features, N)
-        
+
         # Combine all layers
         self.layers = nn.Sequential(*layers)
 
@@ -333,7 +368,7 @@ class DynamicNN(nn.Module):
                 if isinstance(layer, nn.Linear):
                     nn.init.kaiming_normal_(layer.weight, nonlinearity='relu')
                     nn.init.zeros_(layer.bias)
-        
+
         nn.init.kaiming_normal_(self.fc_out.weight, nonlinearity='relu')
         nn.init.zeros_(self.fc_out.bias)
 
@@ -359,12 +394,14 @@ def train_one_epoch(model, loader, criterion, optimizer):
 
 
 def ModelTraining(number_hidden_layers):
-    if type(number_hidden_layers) != int or number_hidden_layers > 4 or number_hidden_layers < 0 : 
+    if type(number_hidden_layers) != int or number_hidden_layers > 4 or number_hidden_layers < 0 :
         print("Please enter an integer between 0 and 4, both inclusive")
         return
+    if USE_FIXED_SEED:
+        _seed_everything(FIXED_SEED)
 
     global FILE_NAME, SCALER, SCALER_Y, M, N, MODEL, CRITERION, OPTIMIZER, TRAIN_DATA
-  
+
     # Load the data
     data = TRAIN_DATA.copy()
     X = data.iloc[:, 1:].values
@@ -412,7 +449,7 @@ def ModelTraining(number_hidden_layers):
     CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.MSELoss()
     # CRITERION = nn.CrossEntropyLoss() if TASK_TYPE == 'classification' else nn.L1Loss()
     OPTIMIZER = optim.Adam(MODEL.parameters(), lr=0.001, weight_decay=0.01)
-    
+
     # Step 3: Training
     num_epochs = min(int(input("Enter the number of epochs: ")), 1000)
     recording_interval = max(num_epochs // 20, 1)
@@ -428,7 +465,7 @@ def ModelTraining(number_hidden_layers):
     plt.xlabel('Epochs (every 5% of num_epochs)')
     plt.ylabel('Loss')
     plt.show()
-    
+
 def ModelEvaluation(DownLoad = True):
     # 1. Setup and Information from the Early Step:
     global FILE_NAME, SCALER, SCALER_Y, MODEL,  TEST_DATA
@@ -498,7 +535,7 @@ def ModelEvaluation(DownLoad = True):
         # Optional: Display some of the best and worst predictions
         errors = np.abs(np.array(predictions) - y_test)
         # Handle divide by zero
-        
+
         mask_zero = (y_test == 0)
         relative_errors = np.where(mask_zero, errors, errors / y_test)
 
@@ -513,7 +550,7 @@ def ModelEvaluation(DownLoad = True):
         print("\n5 Worst Predictions:")
         for idx in sorted_indices[-5:]:
             print(f"True: {y_test[idx]}, Predicted: {predictions[idx]:.4f}")
-        
+
     # 4. Visualization:
     time.sleep(WAIT_TIME)
     if TASK_TYPE == 'classification':
