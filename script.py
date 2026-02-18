@@ -275,7 +275,7 @@ def DataPreProcessing(ignore=True):
         _maybe_print("Error appeared at the FullDataSetUpload step. Please check your input or seek help from teachers.")
         _maybe_print(f"Technical details: {e}")
         return
-    print("A preview of the DataSet as show below...")
+    _maybe_print("A preview of the DataSet as show below...")
     pd.set_option('display.max_rows', 5)
     pd.set_option('display.max_columns', 5)
     _maybe_print(FULL_DATASET)
@@ -315,7 +315,7 @@ def DataPreProcessing(ignore=True):
             _maybe_print(f"Technical details: {e}")
             return
 
-    print("Now let's generate files for trainign and testing...")
+    _maybe_print("Now let's generate files for trainign and testing...")
     time.sleep(WAIT_TIME)
     # Step 5: GenereatingNewfiles
     try:
