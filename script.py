@@ -169,8 +169,15 @@ def ProcessFeatures():
     # Iterate over columns to process them based on type
     for idx, col_name in enumerate(data_without_type.columns[1:], start=1):  # starting from 1 to skip the actual value column
 
-        # Convert string numbers to actual numbers
-        data_without_type[col_name] = pd.to_numeric(data_without_type[col_name], errors='ignore')
+        # Convert string numbers to actual numbers - work but deprecated method
+        # data_without_type[col_name] = pd.to_numeric(data_without_type[col_name], errors='ignore')
+        # Convert string numbers to actual numbers (avoid deprecated errors='ignore')
+        try:
+            data_without_type[col_name] = pd.to_numeric(data_without_type[col_name])
+        except (ValueError, TypeError):
+            # If conversion fails, keep original column (likely categorical text)
+            pass
+        # end of (avoid deprecated errors='ignore')
         # Handle missing values
         if type_row[idx] == "numerical":
             imputer = SimpleImputer(strategy='mean')
