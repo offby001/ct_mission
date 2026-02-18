@@ -252,7 +252,15 @@ def FilesDownloading():
         return
 
 
-def DataPreProcessing():
+def DataPreProcessing(ignore=True):
+    """
+    ignore (bool):
+      - True  -> keep current behavior (prints intermediate messages)
+      - False -> suppress all prints except the final completion message
+    """
+    def _maybe_print(msg):
+        if ignore:
+            print(msg)
         # Step 1: FullDataSetUpload
     try:
         '''
@@ -260,61 +268,61 @@ def DataPreProcessing():
         '''
         global FULL_DATASET
         FULL_DATASET = pd.read_csv("Full_DataSet.csv")
-        print("Dataset Uploaded Successfully!\n\n")
+        _maybe_print("Dataset Uploaded Successfully!\n\n")
 
 
     except Exception as e:
-        print("Error appeared at the FullDataSetUpload step. Please check your input or seek help from teachers.")
-        print(f"Technical details: {e}")
+        _maybe_print("Error appeared at the FullDataSetUpload step. Please check your input or seek help from teachers.")
+        _maybe_print(f"Technical details: {e}")
         return
     print("A preview of the DataSet as show below...")
     pd.set_option('display.max_rows', 5)
     pd.set_option('display.max_columns', 5)
-    print(FULL_DATASET)
-    print("Now let's validate the dataset...")
+    _maybe_print(FULL_DATASET)
+    _maybe_print("Now let's validate the dataset...")
     time.sleep(WAIT_TIME)
     # Step 2: FullDataSetValidation
     try:
-        print(FullDataSetValidation())
+        _maybe_print(FullDataSetValidation())
     except Exception as e:
-        print("Error appeared at the FullDataSetValidation step. Please check your input or seek help from teachers.")
-        print(f"Technical details: {e}")
+        _maybe_print("Error appeared at the FullDataSetValidation step. Please check your input or seek help from teachers.")
+        _maybe_print(f"Technical details: {e}")
         return
 
 
-    print("Now let's process the features ...")
+    _maybe_print("Now let's process the features ...")
     time.sleep(WAIT_TIME)
     # Step 3: ProcessFeatures
     try:
-        print(ProcessFeatures())
-        print("A preview of the processed dataset as show below...")
-        print(PROCESSED_FULL_DATASET)
+        _maybe_print(ProcessFeatures())
+        _maybe_print("A preview of the processed dataset as show below...")
+        _maybe_print(PROCESSED_FULL_DATASET)
     except Exception as e:
-        print("Error appeared at the ProcessFeatures step. Please check your input CSV file or seek help from teachers.")
-        print(f"Technical details: {e}")
+        _maybe_print("Error appeared at the ProcessFeatures step. Please check your input CSV file or seek help from teachers.")
+        _maybe_print(f"Technical details: {e}")
         return
     if TASK_TYPE == "classification":
-        print("Now let's us map the class names to class labels...")
+        _maybe_print("Now let's us map the class names to class labels...")
         time.sleep(WAIT_TIME)
 
     # Step 4: MakeClassLabels
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
         try:
             MakeClassLabels()
-            print("\n\n")
+            _maybe_print("\n\n")
         except Exception as e:
-            print("Error appeared at the MakeClassLabels step. Please check your input or seek help from teachers.")
-            print(f"Technical details: {e}")
+            _maybe_print("Error appeared at the MakeClassLabels step. Please check your input or seek help from teachers.")
+            _maybe_print(f"Technical details: {e}")
             return
 
     print("Now let's generate files for trainign and testing...")
     time.sleep(WAIT_TIME)
     # Step 5: GenereatingNewfiles
     try:
-        print(GenereatingNewfiles())
+        _maybe_print(GenereatingNewfiles())
     except Exception as e:
-        print("Error appeared at the GenereatingNewfiles step. Please check your input or seek help from teachers.")
-        print(f"Technical details: {e}")
+        _maybe_print("Error appeared at the GenereatingNewfiles step. Please check your input or seek help from teachers.")
+        _maybe_print(f"Technical details: {e}")
         return
 
     print("Data Preprocessing completed successfully!")
