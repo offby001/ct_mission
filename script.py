@@ -268,6 +268,10 @@ def DataPreProcessing(ignore=True):
       - True  -> keep current behavior (prints intermediate messages)
       - False -> suppress all prints except the final completion message
     """
+    
+    global WAIT_TIME
+    if not ignore: WAIT_TIME = 0 
+    else: WAIT_TIME = 1
     def _maybe_print(msg):
         if ignore:
             print(msg)
