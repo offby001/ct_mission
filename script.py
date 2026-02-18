@@ -209,6 +209,9 @@ def ProcessFeatures():
 
 
 def MakeClassLabels():
+    def _maybe_print(msg):
+        if ignore:
+            print(msg)
     global FULL_DATASET, CLASS_LABEL_MAP
 
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
@@ -217,17 +220,17 @@ def MakeClassLabels():
         data_without_type = FULL_DATASET.drop(TYPE_ROW, axis=0).copy()
 
         if ACTUAL_VALUE_COL >= len(FULL_DATASET.columns):
-            print(f"Error: ACTUAL_VALUE_COL ({ACTUAL_VALUE_COL}) is out of bounds.")
+            _maybe_print(f"Error: ACTUAL_VALUE_COL ({ACTUAL_VALUE_COL}) is out of bounds.")
             return
 
         try:
             le.fit(data_without_type.iloc[:, ACTUAL_VALUE_COL])
             CLASS_LABEL_MAP = dict(zip(le.classes_, le.transform(le.classes_)))
-            print (f"For this classification task, {len(CLASS_LABEL_MAP)} class labels mapped successfully, as shown below.")
-            print(CLASS_LABEL_MAP)
+            _maybe_print (f"For this classification task, {len(CLASS_LABEL_MAP)} class labels mapped successfully, as shown below.")
+            _maybe_print(CLASS_LABEL_MAP)
             return
         except Exception as e:
-            print(f"Error in label encoding: {e}")
+            _maybe_print(f"Error in label encoding: {e}")
             return
 
 def GenereatingNewfiles():
