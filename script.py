@@ -208,7 +208,7 @@ def ProcessFeatures():
     return "Features Processed Successfully!\n\n"
 
 
-def MakeClassLabels():
+def MakeClassLabels(msg):
     def _maybe_print(msg):
         if ignore:
             print(msg)
@@ -322,7 +322,7 @@ def DataPreProcessing(ignore=True):
     # Step 4: MakeClassLabels
     if FULL_DATASET.iloc[0, ACTUAL_VALUE_COL] == "classification":
         try:
-            MakeClassLabels()
+            MakeClassLabels(msg)
             _maybe_print("\n\n")
         except Exception as e:
             _maybe_print("Error appeared at the MakeClassLabels step. Please check your input or seek help from teachers.")
